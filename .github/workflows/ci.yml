@@ -16,3 +16,20 @@ jobs:
       - run: npm run build --if-present
       - run: npm test
       - run: npm run start
+  cypress-run:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
+      # L'action officielle Cypress fait tout le travail
+      - name: Cypress run
+        uses: cypress-io/github-action@v6
+        with:
+          # Étape 1: Comment démarrer votre application
+          start: npm start
+          
+          # Étape 2: Attendre que ce port soit actif avant de lancer les tests
+          # (Remplacez 3000 par votre port : 5173 pour Vite, 3000 pour React/Next, etc.)
+          wait-on: 'http://localhost:3000'
