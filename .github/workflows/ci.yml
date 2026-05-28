@@ -8,28 +8,35 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20.x'
+          cache: 'npm'              # ✅ Cache des dépendances npm
+
       - run: npm ci
       - run: npm run build --if-present
       - run: npm test
-      - run: npm run start
+      # ✅ Suppression de "npm run start" — bloquant et inutile en CI
+
   cypress-run:
     runs-on: ubuntu-latest
+    needs: build                    # ✅ Attend la fin du job build
 
     steps:
       - name: Checkout du code
         uses: actions/checkout@v4
 
-      # L'action officielle Cypress fait tout le travail
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'              # ✅ Cache partagé entre les jobs
+
       - name: Cypress run
         uses: cypress-io/github-action@v6
         with:
-          # Étape 1: Comment démarrer votre application
+          build: npm run build --if-present   # ✅ Build avant les tests
           start: npm start
-          
-          # Étape 2: Attendre que ce port soit actif avant de lancer les tests
-          # (Remplacez 3000 par votre port : 5173 pour Vite, 3000 pour React/Next, etc.)
           wait-on: 'http://localhost:3000'
